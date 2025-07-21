@@ -1,0 +1,51 @@
+{# Individuals #}
+{% set james_n = is_state('person.james_n', 'home') %}
+{% set jarrett_b = is_state('person.jarrett_b', 'home') %}
+{% set matt_s = is_state('person.matt_s', 'home') %}
+{% set peter_h = is_state('person.peter_h', 'home') %}
+{% set charlie_h = is_state('person.charlie_h', 'home') %}
+
+{# Group #}
+{% set users = [james_n, jarrett_b, matt_s, peter_h, charlie_h] %}
+{% set names = ["James", "Jarrett", "Matt", "Peter", "Charlie"] %}
+
+{# Store if all home or all away #}
+{% set allhomeorallaway = false %}
+
+{# Everyone home... #}
+{% if james_n == true and jarrett_b == true and matt_s == true and peter_h == true and charlie_h == true %}
+  {{ "Everyone's home!" }}
+  {% set allhomeorallaway = true %}
+{% endif %}
+
+{# No one home... #}
+{% if james_n == false and jarrett_b == false and matt_s == false and peter_h == false and charlie_h == false %}
+  {{ "No one's home!" }}
+  {% set allhomeorallaway = true %}
+{% endif %}
+
+{# In the middle... #}
+{% if allhomeorallaway == false %}
+  {% set data = namespace(usershome=[]) %}
+  {% for user in users %}
+    {% if user is true %}
+      {% set data.usershome = data.usershome + [names[loop.index0]] %}
+    {% endif %}
+  {% endfor %}
+  
+  {% set stringout = namespace(string="") %}
+  {% set counter = namespace(count=0) %}
+  {% for userathome in data.usershome %}
+    {% if counter.count == data.usershome|count - 2 %}
+      {% set stringout.string = stringout.string + userathome + " and " %}
+    {% elif counter.count == data.usershome|count - 1 %}
+      {% set stringout.string = stringout.string + userathome %}
+    {% else %}
+      {% set stringout.string = stringout.string + userathome + ", " %}
+    {% endif %}
+    {% set counter.count = counter.count + 1 %}
+  {% endfor %}
+
+  {% set stringout.string = stringout.string + " are home!" %}
+  {{ stringout.string }}
+{% endif %}
