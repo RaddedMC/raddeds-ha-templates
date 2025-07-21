@@ -1,0 +1,157 @@
+{# Final output string #}
+{% set final_result = "" %}
+
+
+{### --- Greeting --- ###}
+{# Date salutation #}
+{% set date_salutation = "" %}
+{% set current_hour = now().hour %}
+{% if current_hour >= 0 and current_hour < 6 %}
+  {% set date_salutation = "night" %}
+{% elif current_hour >= 6 and current_hour < 12 %}
+  {% set date_salutation = "morning" %}
+{% elif current_hour >= 12 and current_hour < 18 %}
+  {% set date_salutation = "afternoon" %}
+{% else %}
+  {% set date_salutation = "evening" %}
+{% endif %}
+
+{% set final_result = final_result + "\n" + "Good " + date_salutation + " James," %}
+
+
+{### --- Temporaries / high priority --- ###}
+{# Someone in my room when i'm not home #}
+{% if is_state('binary_sensor.aqara_lumi_motion_ac01_occupancy', 'on') and not is_state('person.james_n', 'home') %}
+    {% set final_result = final_result + "\n" + " •! Someone is in your room." %}
+{% endif %}
+
+{# The front door is open #}
+{% if is_state('binary_sensor.lumi_lumi_sensor_magnet_aq2_06d93208_on_off', 'on') %}
+    {% set final_result = final_result + "\n" + " •! The front door is open." %}
+{% endif %}
+
+{# TurboServ is on #}
+{% if is_state('switch.wake_on_lan', 'on') %}
+    {% set final_result = final_result + "\n" + " • TurboServ is on." %}
+{% endif %}
+
+{# Sensor checks #}
+{% if is_state('input_boolean.away_mode', 'on') %}
+    {% set final_result = final_result + "\n" + " △ The house is in away mode." %}
+    {% if is_state('binary_sensor.front_cam_motion_sensor', 'on') %}
+        {% set final_result = final_result + "\n" + "     •! Someone is at the door." %}
+    {% endif %}
+    {% if is_state('binary_sensor.back_cam_motion_sensor', 'on') %}
+        {% set final_result = final_result + "\n" + "     •! Someone is in the backyard." %}
+    {% endif %}
+
+    {% if is_state('binary_sensor.upstairs_hallway_motion', 'on') %}
+        {% set final_result = final_result + "\n" + "     •! Someone is in the upstairs hallway." %}
+    {% endif %}
+    {% if is_state('binary_sensor.kitchen_occupancy', 'on') %}
+        {% set final_result = final_result + "\n" + "     •! Someone is in the kitchen." %}
+    {% endif %}
+    {% if is_state('binary_sensor.lumi_lumi_sensor_motion_aq2_4d3a0808_occupancy', 'on') %}
+        {% set final_result = final_result + "\n" + "     •! Someone is in the living room." %}
+    {% endif %}
+    {% if is_state('binary_sensor.hue_motion_sensor_1_motion', 'on') %}
+        {% set final_result = final_result + "\n" + "     •! Someone is in the basement hallway." %}
+    {% endif %}
+{% else %}
+
+
+{### --- Who's home --- ###}
+{# Individuals #}
+{% set james_n = is_state('person.james_n', 'home') %}
+{% set jarrett_b = is_state('person.jarrett_b', 'home') %}
+{% set matt_s = is_state('person.matt_s', 'home') %}
+{% set peter_h = is_state('person.peter_h', 'home') %}
+{% set charlie_h = is_state('person.charlie_h', 'home') %}
+
+{# Group #}
+{% set users = [james_n, jarrett_b, matt_s, peter_h, charlie_h] %}
+{% set names = ["James", "Jarrett", "Matt", "Peter", "Charlie"] %}
+
+{# Store if all home or all away #}
+{% set allhomeorallaway = false %}
+
+{# Everyone home... #}
+{% if james_n == true and jarrett_b == true and matt_s == true and peter_h == true and charlie_h == true %}
+  {{ "Everyone's home!" }}
+  {% set allhomeorallaway = true %}
+{% endif %}
+
+{# No one home... #}
+{% if james_n == false and jarrett_b == false and matt_s == false and peter_h == false and charlie_h == false %}
+  {{ "No one's home!" }}
+  {% set allhomeorallaway = true %}
+{% endif %}
+
+{# In the middle... #}
+{% if allhomeorallaway == false %}
+  {% set data = namespace(usershome=[]) %}
+  {% for user in users %}
+    {% if user is true %}
+      {% set data.usershome = data.usershome + [names[loop.index0]] %}
+    {% endif %}
+  {% endfor %}
+  
+  {% set stringout = namespace(string="") %}
+  {% set counter = namespace(count=0) %}
+  {% for userathome in data.usershome %}
+    {% if counter.count == data.usershome|count - 2 %}
+      {% set stringout.string = stringout.string + userathome + " and " %}
+    {% elif counter.count == data.usershome|count - 1 %}
+      {% set stringout.string = stringout.string + userathome %}
+    {% else %}
+      {% set stringout.string = stringout.string + userathome + ", " %}
+    {% endif %}
+    {% set counter.count = counter.count + 1 %}
+  {% endfor %}
+
+  {% set stringout.string = stringout.string + " are home!" %}
+  {% set final_result = final_result + "\n ▲ " + stringout.string %}
+{% endif %}
+{% endif %}
+
+
+{### --- House temps --- ###}
+{% set final_result = final_result + "\n • The basement is at " + states("sensor.hue_motion_sensor_1_temperature") + "°C" %}
+{% set final_result = final_result + "\n • The living room is at " + states("sensor.lumi_sensor_motion_aq2_4d3a0808_device_temperature_offset") + "°C" %}
+{% if not is_state("sensor.upstairs_hallway_temperature", "unavailable") %}
+    {% set final_result = final_result + "\n • The upper floor is at " + states("sensor.upstairs_hallway_temperature") + "°C and " + states("sensor.upstairs_hallway_humidity") + "% humidity." %}
+{% endif %}
+
+
+{### --- Minecraft --- ###}
+{% if not is_state("sensor.minecraft_players_list", "No one") %}
+    {% set final_result = final_result + "\n • " + states("sensor.minecraft_players_list") + " is on the minecraft server." %}
+{% endif %}
+
+{### --- Living room TV --- ###}
+{% if not is_state("select.harmony_hub_activities", "power_off") %}
+    {% set final_result = final_result + "\n • The living room TV is set to " + states("select.harmony_hub_activities") %}
+{% endif %}
+
+{### --- Oculus --- ###}
+{% if is_state("device_tracker.unifi_b4_17_a8_ef_e0_a7_default", "home") %}
+    {% set final_result = final_result + "\n • Your Quest 2 is on." %}
+{% endif %}
+
+{### --- Annoying things, fan, tv ###}
+{% if is_state("fan.james_room_fan", "on") %}
+    {% set final_result = final_result + "\n • Your fan is on." %}
+{% endif %}
+
+{### --- Annoying things, fan, tv ###}
+{% if is_state("switch.james_room_annoying_things", "on") %}
+    {% set final_result = final_result + "\n • Your Annoying Things are on." %}
+{% endif %}
+
+{### --- Annoying things, fan, tv ###}
+{% if not is_state("media_player.james_room_tv", "off") %}
+    {% set final_result = final_result + "\n • Your TV is on." %}
+{% endif %}
+
+{### --- Final output --- ###}
+{{ final_result }}
