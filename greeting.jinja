@@ -1,9 +1,18 @@
-{# -- Title -- #}
+# -- Title -- #}
 {% set current_user = 'person.' ~ user | lower | replace(' ', '_')  %}
+
+{# - Special cases - #}
+{% if current_user == "person.james" and now().strftime("%H")|int < 6 %}
+  # You should go to bed, {{ user }}.
+
+
+{# - Basic greeting - #}
+{% else %}
 {% if states(current_user) == 'home' %}
   # Welcome home, {{ user }}.
 {% else %}
   # Hello, {{ user }}.
+{% endif %}
 {% endif %}
 
 {# -- Subtext -- #}
