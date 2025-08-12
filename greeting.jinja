@@ -1,0 +1,15 @@
+{# -- Title -- #}
+{% set current_user = 'person.' ~ user | lower | replace(' ', '_')  %}
+{% if states(current_user) == 'home' %}
+  # Welcome home, {{ user }}.
+{% else %}
+  # Hello, {{ user }}.
+{% endif %}
+
+{# -- Subtext -- #}
+{% if states('person.james') == 'home' and states('person.angelina') == 'home' %}
+👨🏻‍❤️‍💋‍👩🏻 Everyone's home.
+{% else %}
+👨🏻 James is {{ states('person.james') }}.
+👩🏻‍🦰 Angelina is {{ states('person.angelina') }}
+{% endif %}
