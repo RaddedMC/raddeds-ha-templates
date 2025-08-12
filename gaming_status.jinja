@@ -1,0 +1,27 @@
+{% set game_name = "" %}
+{% set platform_name = "" %}
+
+{% if states("binary_sensor.xboxtag") == "on" and states("sensor.xboxtag_status") != "Online" %}
+{% set game_name = states("sensor.xboxtag_status") %}
+{% set platform_name = "Xbox" %}
+
+{% elif (states("sensor.steam_id") == "online" or states("sensor.steam_id") == "away") and state_attr("sensor.steam_id", "game") != None %}
+{% set game_name = state_attr("sensor.steam_id", "game") %}
+{% set platform_name = "Steam" %}
+
+{% elif states("media_player.playstation_vita") == "playing" %}
+{% set game_name = state_attr("media_player.playstation_vita", "media_title") if state_attr("media_player.playstation_vita", "media_title") != None %}
+{% set platform_name = "PS Vita" %}
+
+{% elif states("media_player.playstation_3") == "playing" %}
+{% set game_name = state_attr("media_player.playstation_3", "media_title") if state_attr("media_player.playstation_3", "media_title") != None %}
+{% set platform_name = "PS3" %}
+
+
+{% endif %}
+
+{% if game_name == "" %}
+User is not playing any games.
+{% else %}
+User is currently playing {{ game_name }} on {{ platform_name }}.
+{% endif %}
