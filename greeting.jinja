@@ -1,23 +1,22 @@
 {# -- Title -- #}
 
+  {% set current_user = 'person.' ~ user | lower | replace(' ', '_')  %}
+
   {# - Override for accessory users - #}
   {% if current_user != "person.james" and current_user != "person.angelina" %}
-    # Hello there.
+# Hello there.
   {% else %}
-
-    {% set current_user = 'person.' ~ user | lower | replace(' ', '_')  %}
 
     {# - Special cases - #}
     {% if current_user == "person.james" and now().strftime("%H")|int < 6 and now().strftime("%H")|int > 1 %}
-      # You should go to bed, {{ user }}.
-
+# You should go to bed, {{ user }}.
 
     {# - Basic greeting - #}
     {% else %}
       {% if states(current_user) == 'home' %}
-        # Welcome home, {{ user }}.
+# Welcome home, {{ user }}.
       {% else %}
-        # Hello, {{ user }}.
+# Hello, {{ user }}.
       {% endif %}
     {% endif %}
 
@@ -27,15 +26,15 @@
 
   {# -- User locations -- #}
   {% if states('person.james') == 'home' and states('person.angelina') == 'home' %}
-  👨🏻‍❤️‍💋‍👩🏻 Everyone's home.
+👨🏻‍❤️‍💋‍👩🏻 Everyone's home.
   {% else %}
-  👨🏻 James is {{ states('person.james') }}.
-  👩🏻‍🦰 Angelina is {{ states('person.angelina') }}
+👨🏻 James is {{ states('person.james') }}.
+👩🏻‍🦰 Angelina is {{ states('person.angelina') }}
   {% endif %}
 
   {# -- User sleep state -- #}
-  {% if states('sensor.james_pixel_7_sleep_confidence')|float > 0.80 %}
-  😴 James is asleep.
+  {% if states('binary_sensor.james_asleep') == "on" %}
+😴 James is asleep.
   {% endif %}
 
   {# -- Gaming -- #}
@@ -44,12 +43,12 @@
   {% set angie_game_name = "" %}
   {% set angie_platform_name = "" %}
 
-  {% if states("binary_sensor.xboxlive") == "on" and states("sensor.xboxlive_status") != "Online" and states("sensor.xboxlive_status") != "Xbox App" %}
-    {% set james_game_name = states("sensor.xboxlive_status") %}
+  {% if states("binary_sensor.raddedmc") == "on" and states("sensor.raddedmc_status") != "Online" and states("sensor.raddedmc_status") != "Xbox App" %}
+    {% set james_game_name = states("sensor.raddedmc_status") %}
     {% set james_platform_name = "Xbox" %}
 
-  {% elif (states("sensor.steam") == "online" or states("sensor.steam") == "away") and state_attr("sensor.steam", "game") != None %}
-    {% set james_game_name = state_attr("sensor.steam", "game") %}
+  {% elif (states("sensor.steam_76561198128944435") == "online" or states("sensor.steam_76561198128944435") == "away") and state_attr("sensor.steam_76561198128944435", "game") != None %}
+    {% set james_game_name = state_attr("sensor.steam_76561198128944435", "game") %}
     {% set james_platform_name = "Steam" %}
 
   {% elif states("media_player.playstation_vita") == "playing" %}
@@ -63,8 +62,8 @@
   {% endif %}
 
 
-  {% if states("binary_sensor.xboxlive2") == "on" and states("sensor.xboxlive2") != "Online" and states("sensor.xboxlive2") != "Xbox App" %}
-    {% set angie_game_name = states("sensor.xboxlive2") %}
+  {% if states("binary_sensor.mojo23022548") == "on" and states("sensor.mojo23022548_status") != "Online" and states("sensor.mojo23022548_status") != "Xbox App" %}
+    {% set angie_game_name = states("sensor.mojo23022548_status") %}
     {% set angie_platform_name = "Xbox" %}
 
   {% endif %}
@@ -72,15 +71,15 @@
   {% if james_game_name == "" and angie_game_name == "" %}
 
   {% elif angie_game_name == "" %}
-    🎮 James is currently playing {{ james_game_name }} on {{ james_platform_name }}.
+🎮 James is currently playing {{ james_game_name }} on {{ james_platform_name }}.
 
   {% elif james_game_name == "" %}
-    🎮 Angelina is currently playing {{ angie_game_name }} on {{ angie_platform_name }}.
+🎮 Angelina is currently playing {{ angie_game_name }} on {{ angie_platform_name }}.
 
   {% elif james_game_name == angie_game_name %}
-    🎮 James and Angelina are currently playing {{ angie_game_name }} on {{ angie_platform_name }} together 💖.
+🎮 James and Angelina are currently playing {{ angie_game_name }} on {{ angie_platform_name }} together 💖.
 
   {% else %}
-    🎮 James is currently playing {{ james_game_name }} on {{ james_platform_name }}, and Angelina is currently playing {{ angie_game_name }} on {{ angie_platform_name }}.
+🎮 James is currently playing {{ james_game_name }} on {{ james_platform_name }}, and Angelina is currently playing {{ angie_game_name }} on {{ angie_platform_name }}.
 
   {% endif %}
