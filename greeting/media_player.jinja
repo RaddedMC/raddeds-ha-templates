@@ -1,0 +1,5 @@
+{% set players = states.media_player %}
+{% for player in players %}
+  {% if player.state == "playing" %}**{{ player.name }}** is playing **{{ player.attributes.media_title or "Unknown title" }}**{% if player.attributes.media_artist %} by {{ player.attributes.media_artist }}{% endif %}
+  {% endif %}
+{% endfor %}

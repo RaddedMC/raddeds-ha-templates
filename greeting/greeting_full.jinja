@@ -22,20 +22,26 @@
 
   {% endif %}
 
+
+
+
 {# -- Subtext -- #}
+
 
   {# -- User locations -- #}
   {% if states('person.james') == 'home' and states('person.angelina') == 'home' %}
 👨🏻‍❤️‍💋‍👩🏻 Everyone's home.
   {% else %}
-👨🏻 James is {{ states('person.james') }}.
-👩🏻‍🦰 Angelina is {{ states('person.angelina') }}
+👨🏻 James is {{ 'not home' if states('person.james') == 'not_home' else states('person.james')  }}.
+👩🏻‍🦰 Angelina is {{ 'not home' if states('person.angelina') == 'not_home' else states('person.angelina') }}
   {% endif %}
+
 
   {# -- User sleep state -- #}
   {% if states('binary_sensor.james_asleep') == 'on' %}
 😴 James is asleep.
   {% endif %}
+
 
   {# -- Gaming -- #}
   {% set james_game_name = '' %}
@@ -83,3 +89,11 @@
 🎮 James is currently playing {{ james_game_name }} on {{ james_platform_name }}, and Angelina is currently playing {{ angie_game_name }} on {{ angie_platform_name }}.
 
   {% endif %}
+
+
+  {# -- Media players -- #}
+  {% set players = states.media_player %}
+{% for player in players %}
+  {% if player.state == "playing" %}🎶 **{{ player.name }}** is playing **{{ player.attributes.media_title or "Unknown title" }}**{% if player.attributes.media_artist %} by {{ player.attributes.media_artist }}{% endif %}
+  {% endif %}
+{% endfor %}
