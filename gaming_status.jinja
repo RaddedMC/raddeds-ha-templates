@@ -1,26 +1,26 @@
-{% set game_name = "" %}
-{% set platform_name = "" %}
+{% set game_name = '' %}
+{% set platform_name = '' %}
 
-{% if states("binary_sensor.xboxlive") == "on" and states("sensor.xboxlive_status") != "Online" and states("sensor.xboxlive_status") != "Xbox App" %}
-{% set game_name = states("sensor.xboxlive_status") %}
-{% set platform_name = "Xbox" %}
+{% if states('binary_sensor.xboxlive') == 'on' and states('sensor.xboxlive_status') != 'Online' and states('sensor.xboxlive_status') != 'Xbox App' %}
+{% set game_name = states('sensor.xboxlive_status') %}
+{% set platform_name = 'Xbox' %}
 
-{% elif (states("sensor.steam") == "online" or states("sensor.steam") == "away") and state_attr("sensor.steam", "game") != None %}
-{% set game_name = state_attr("sensor.steam", "game") %}
-{% set platform_name = "Steam" %}
+{% elif (states('sensor.steam') == 'online' or states('sensor.steam') == 'away') and state_attr('sensor.steam', 'game') != None %}
+{% set game_name = state_attr('sensor.steam', 'game') %}
+{% set platform_name = 'Steam' %}
 
-{% elif states("media_player.playstation_vita") == "playing" %}
-{% set game_name = state_attr("media_player.playstation_vita", "media_title") if state_attr("media_player.playstation_vita", "media_title") != None %}
-{% set platform_name = "PS Vita" %}
+{% elif states('media_player.playstation_vita') == 'playing' %}
+{% set game_name = state_attr('media_player.playstation_vita', 'media_title') if state_attr('media_player.playstation_vita', 'media_title') != None %}
+{% set platform_name = 'PS Vita' %}
 
-{% elif states("media_player.playstation_3") == "playing" %}
-{% set game_name = state_attr("media_player.playstation_3", "media_title") if state_attr("media_player.playstation_3", "media_title") != None %}
-{% set platform_name = "PS3" %}
+{% elif states('media_player.playstation_3') == 'playing' %}
+{% set game_name = state_attr('media_player.playstation_3', 'media_title') if state_attr('media_player.playstation_3', 'media_title') != None %}
+{% set platform_name = 'PS3' %}
 
 
 {% endif %}
 
-{% if game_name == "" %}
+{% if game_name == '' %}
 User is not playing any games.
 {% else %}
 User is currently playing {{ game_name }} on {{ platform_name }}.
